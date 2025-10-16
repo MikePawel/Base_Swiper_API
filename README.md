@@ -1,30 +1,23 @@
-# Base Swiper API
+# Base Swiper API - Simple Version
 
-Backend API for Base Swiper that fetches and stores Zora FEATURED token data in MongoDB.
+Super simple backend that fetches FEATURED tokens from Zora API every 1 minute and stores them in a JSON file.
 
 ## Features
 
-- 🔄 **Automatic Data Refresh**: Fetches FEATURED tokens from Zora API every 5 minutes
-- ✂️ **Simplified Scope**: Only FEATURED list (count=100), no other list types
-- 🔍 **Search & Filter**: Search tokens by name, symbol, or description
-- 📈 **Analytics**: Get top tokens by market cap and trending tokens
-- 🚀 **High Performance**: Optimized MongoDB queries with proper indexing
-- 🛡️ **Rate Limiting**: Built-in rate limiting and security features
+- 🔄 **Auto-fetch**: Fetches FEATURED tokens every 1 minute
+- 📊 **Status logs**: Logs every 10 seconds
+- 💾 **JSON storage**: No database needed, just a JSON file
+- 🚀 **Pagination**: Get first 10, next 10, etc.
+- 🔍 **Search**: Search tokens by name/symbol/description
 
 ## API Endpoints
 
-### Token Endpoints
-
-- `GET /api/tokens/featured` - Get FEATURED tokens
-- `GET /api/tokens/address/:address` - Get specific token by contract address
-- `GET /api/tokens/search?q=query` - Search tokens by name/symbol/description
-- `GET /api/tokens/stats` - Get database statistics
-- `GET /api/tokens/health` - Health check endpoint
-
-### Admin Endpoints
-
-- `POST /api/tokens/refresh` - Manually refresh token data
-- `GET /health` - Overall API health check
+- `GET /health` - Health check
+- `GET /api/tokens/featured?page=1&limit=20` - Get FEATURED tokens with pagination
+- `GET /api/tokens/address/:address` - Get specific token
+- `GET /api/tokens/search?q=query` - Search tokens
+- `POST /api/tokens/refresh` - Manual refresh
+- `GET /api-docs` - **Swagger UI Documentation** 🎯
 
 ## Quick Start
 
@@ -36,22 +29,15 @@ npm install
 
 ### 2. Environment Setup
 
-Copy the example environment file:
-
-```bash
-cp env.example .env
-```
-
-Update the `.env` file with your MongoDB connection string:
+Copy `env.example` to `.env` and update:
 
 ```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/base_swiper?retryWrites=true&w=majority
 PORT=3001
 NODE_ENV=production
 CORS_ORIGIN=https://your-frontend-domain.com
 ```
 
-### 3. Run the Server
+### 3. Run Server
 
 ```bash
 # Development
@@ -61,222 +47,87 @@ npm run dev
 npm start
 ```
 
-## MongoDB Setup
+## Coolify Deployment
 
-### 1. Create MongoDB Atlas Account
+### 1. Push to GitHub
 
-1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-2. Create a free account
-3. Create a new cluster (M0 Sandbox is free)
-4. Create a database user
-5. Get your connection string
-
-### 2. Database Configuration
-
-The API will automatically create the following collections:
-
-- `tokens` - Main token data with proper indexing
-
-### 3. Indexes
-
-The following indexes are automatically created for optimal performance:
-
-- `{ address: 1, listType: 1 }`
-- `{ listType: 1, marketCapNumeric: -1 }`
-- `{ listType: 1, volume24hNumeric: -1 }`
-- `{ listType: 1, createdAt: -1 }`
-- `{ lastUpdated: -1 }`
-
-## Coolify Deployment (Nixpacks, no Docker)
-
-### 1. Prepare Your Repository
-
-1. Push your code to GitHub/GitLab
-2. Make sure all files are committed
+Commit all files to your repository.
 
 ### 2. Coolify Setup
 
-1. **Create New Project**:
-
-   - Go to your Coolify dashboard
-   - Click "New Project"
-   - Choose "Git Repository"
-   - Connect your repository
-
-2. **Configure Build Settings (Nixpacks)**:
-
-   - **Build Type**: Nixpacks (no Dockerfile needed)
+1. **Create New Project** in Coolify
+2. **Connect Repository**
+3. **Build Settings**:
    - **Root Directory**: `Base_Swiper_API`
    - **Build Command**: `npm install`
    - **Start Command**: `npm start`
-   - **Node Version**: 18.x or higher (Coolify/Nixpacks will auto-detect)
+   - **Build Type**: Nixpacks (no Docker)
 
-3. **Environment Variables**:
-   Add these environment variables in Coolify:
+### 3. Environment Variables
 
-   ```
-   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/base_swiper?retryWrites=true&w=majority
-   NODE_ENV=production
-   PORT=3001
-   CORS_ORIGIN=https://your-frontend-domain.com
-   RATE_LIMIT_WINDOW_MS=900000
-   RATE_LIMIT_MAX_REQUESTS=100
-   ```
+Set in Coolify:
 
-   Notes:
+```
+PORT=3001
+NODE_ENV=production
+CORS_ORIGIN=https://your-frontend-domain.com
+```
 
-   - Refresh interval is fixed at 5 minutes in code for FEATURED tokens.
-   - If your frontend is on Vercel, set `CORS_ORIGIN` to your Vercel URL.
+### 4. Deploy
 
-4. **Deploy**:
-   - Click "Deploy"
-   - Wait for the build to complete
-   - Your API will be available at the provided URL
-
-### 3. Domain Configuration (Optional)
-
-1. **Custom Domain**:
-
-   - In Coolify, go to your project settings
-   - Add a custom domain (e.g., `api.yourdomain.com`)
-   - Configure DNS records as instructed
-
-2. **SSL Certificate**:
-   - Coolify automatically handles SSL certificates
-   - Your API will be available over HTTPS
+Click deploy and wait for completion.
 
 ## Frontend Integration
 
-Update your frontend to use the new API endpoints (FEATURED only):
+Replace your Zora API calls with:
 
 ```javascript
-// Replace your current Zora API calls with your backend endpoint:
+// Get FEATURED tokens (first 20)
 const response = await fetch(
   "https://your-api-domain.com/api/tokens/featured?page=1&limit=20"
 );
 const data = await response.json();
 
+// Get next 20 tokens
+const nextPage = await fetch(
+  "https://your-api-domain.com/api/tokens/featured?page=2&limit=20"
+);
+
 // Search tokens
-const searchResponse = await fetch(
+const search = await fetch(
   "https://your-api-domain.com/api/tokens/search?q=base"
 );
-const searchData = await searchResponse.json();
-
-// Get specific token
-const tokenResponse = await fetch(
-  "https://your-api-domain.com/api/tokens/address/0x..."
-);
-const tokenData = await tokenResponse.json();
 ```
 
-## Monitoring & Maintenance
+## How It Works
 
-### 1. Health Monitoring
+1. **Fetches every 1 minute**: Automatically gets 100 FEATURED tokens from Zora API
+2. **Saves to JSON**: Stores in `tokens.json` file
+3. **Serves with pagination**: Frontend can request first 10, next 10, etc.
+4. **Logs every 10 seconds**: Shows status in console
+5. **No database needed**: Just a simple JSON file
+6. **Swagger UI**: Interactive API documentation at `/api-docs` 🎯
 
-Check API health:
+## File Structure
 
-```bash
-curl https://your-api-domain.com/health
+```
+Base_Swiper_API/
+├── server.js          # Main server file
+├── package.json       # Dependencies
+├── env.example        # Environment template
+├── tokens.json        # Generated token data (auto-created)
+└── README.md          # This file
 ```
 
-### 2. Manual Data Refresh
+## Monitoring
 
-Force refresh all data:
+Check logs in Coolify to see:
 
-```bash
-curl -X POST https://your-api-domain.com/api/tokens/refresh
-```
-
-Refresh specific list type:
-
-```bash
-curl -X POST https://your-api-domain.com/api/tokens/refresh \
-  -H "Content-Type: application/json" \
-  -d '{"listType": "FEATURED", "count": 100}'
-```
-
-### 3. Database Statistics
-
-Get database stats:
-
-```bash
-curl https://your-api-domain.com/api/tokens/stats
-```
-
-## Performance Optimization
-
-### 1. MongoDB Atlas Optimization
-
-- Use MongoDB Atlas M10+ for production
-- Enable connection pooling
-- Monitor query performance in Atlas dashboard
-
-### 2. API Optimization
-
-- The API includes automatic data refresh every 30 minutes
-- Old tokens are automatically cleaned up after 7 days
-- Rate limiting prevents abuse
-- Compression reduces response sizes
-
-### 3. Caching Strategy
-
-Consider adding Redis for caching if you need faster response times:
-
-```javascript
-// Example Redis integration
-const redis = require("redis");
-const client = redis.createClient();
-
-// Cache frequently accessed data
-const cacheKey = `tokens:${listType}:${page}`;
-const cached = await client.get(cacheKey);
-if (cached) return JSON.parse(cached);
-```
-
-## Troubleshooting
-
-### Common Issues
-
-1. **MongoDB Connection Failed**:
-
-   - Check your MONGODB_URI
-   - Ensure your IP is whitelisted in Atlas
-   - Verify database user permissions
-
-2. **Rate Limiting**:
-
-   - Adjust RATE_LIMIT_MAX_REQUESTS if needed
-   - Implement client-side caching
-
-3. **Data Not Updating**:
-   - Check the refresh job status
-   - Manually trigger refresh
-   - Check Zora API availability
-
-### Logs
-
-Check Coolify logs for debugging:
-
-- Build logs: Check for dependency issues
-- Runtime logs: Check for runtime errors
-- Database logs: Check MongoDB Atlas logs
-
-## Security Considerations
-
-1. **Environment Variables**: Never commit `.env` files
-2. **CORS**: Configure CORS_ORIGIN properly
-3. **Rate Limiting**: Adjust limits based on your needs
-4. **MongoDB Security**: Use strong passwords and IP whitelisting
-
-## Support
-
-For issues and questions:
-
-1. Check the logs in Coolify
-2. Verify MongoDB Atlas connection
-3. Test API endpoints manually
-4. Check environment variables
+- ✅ Token fetch success
+- 📊 Status updates every 10 seconds
+- ⏰ 1-minute fetch intervals
+- ❌ Any errors
 
 ## License
 
-MIT License - see LICENSE file for details.
+MIT License

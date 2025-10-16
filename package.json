@@ -1,35 +1,31 @@
 {
   "name": "base-swiper-api",
   "version": "1.0.0",
-  "description": "Backend API for Base Swiper - fetches and stores Zora token data",
-  "main": "src/server.js",
+  "description": "Simple backend API for Base Swiper - JSON file storage",
+  "main": "server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
-    "test": "jest"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "keywords": [
     "base",
     "zora",
     "api",
-    "mongodb",
-    "tokens"
+    "json",
+    "simple"
   ],
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
-    "mongoose": "^8.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "axios": "^1.6.2",
-    "helmet": "^7.1.0",
-    "express-rate-limit": "^7.1.5",
-    "compression": "^1.7.4"
+    "swagger-ui-express": "^5.0.0",
+    "swagger-jsdoc": "^6.2.8"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2",
-    "jest": "^29.7.0"
+    "nodemon": "^3.0.2"
   },
   "engines": {
     "node": ">=18.0.0"
