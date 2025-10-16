@@ -206,13 +206,21 @@ class TokenController {
   async refreshTokens(req, res) {
     try {
       console.log("Manually refreshing FEATURED tokens...");
-      
+
       // Fetch FEATURED tokens from Zora API
-      const zoraData = await this.zoraService.fetchExploreTokens("FEATURED", 100);
-      const transformedTokens = this.zoraService.transformTokens(zoraData, "FEATURED");
-      
+      const zoraData = await this.zoraService.fetchExploreTokens(
+        "FEATURED",
+        100
+      );
+      const transformedTokens = this.zoraService.transformTokens(
+        zoraData,
+        "FEATURED"
+      );
+
       // Replace all existing FEATURED tokens
-      const result = await this.tokenService.replaceFeaturedTokens(transformedTokens);
+      const result = await this.tokenService.replaceFeaturedTokens(
+        transformedTokens
+      );
 
       res.json({
         success: true,

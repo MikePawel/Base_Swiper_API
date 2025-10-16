@@ -1,11 +1,11 @@
 # Base Swiper API
 
-Backend API for Base Swiper that fetches and stores Zora token data in MongoDB.
+Backend API for Base Swiper that fetches and stores Zora FEATURED token data in MongoDB.
 
 ## Features
 
-- 🔄 **Automatic Data Refresh**: Fetches token data from Zora API every 30 minutes
-- 📊 **Multiple List Types**: Supports NEW, MOST_VALUABLE, TOP_GAINERS, FEATURED
+- 🔄 **Automatic Data Refresh**: Fetches FEATURED tokens from Zora API every 5 minutes
+- ✂️ **Simplified Scope**: Only FEATURED list (count=100), no other list types
 - 🔍 **Search & Filter**: Search tokens by name, symbol, or description
 - 📈 **Analytics**: Get top tokens by market cap and trending tokens
 - 🚀 **High Performance**: Optimized MongoDB queries with proper indexing
@@ -15,11 +15,9 @@ Backend API for Base Swiper that fetches and stores Zora token data in MongoDB.
 
 ### Token Endpoints
 
-- `GET /api/tokens/:listType` - Get tokens by list type (NEW, MOST_VALUABLE, TOP_GAINERS, FEATURED)
+- `GET /api/tokens/featured` - Get FEATURED tokens
 - `GET /api/tokens/address/:address` - Get specific token by contract address
 - `GET /api/tokens/search?q=query` - Search tokens by name/symbol/description
-- `GET /api/tokens/top/:listType` - Get top tokens by market cap
-- `GET /api/tokens/trending/:listType` - Get trending tokens by 24h volume
 - `GET /api/tokens/stats` - Get database statistics
 - `GET /api/tokens/health` - Health check endpoint
 
@@ -89,7 +87,7 @@ The following indexes are automatically created for optimal performance:
 - `{ listType: 1, createdAt: -1 }`
 - `{ lastUpdated: -1 }`
 
-## Coolify Deployment
+## Coolify Deployment (Nixpacks, no Docker)
 
 ### 1. Prepare Your Repository
 
@@ -105,12 +103,13 @@ The following indexes are automatically created for optimal performance:
    - Choose "Git Repository"
    - Connect your repository
 
-2. **Configure Build Settings**:
+2. **Configure Build Settings (Nixpacks)**:
 
-   - **Build Pack**: Node.js
+   - **Build Type**: Nixpacks (no Dockerfile needed)
+   - **Root Directory**: `Base_Swiper_API`
    - **Build Command**: `npm install`
    - **Start Command**: `npm start`
-   - **Node Version**: 18.x or higher
+   - **Node Version**: 18.x or higher (Coolify/Nixpacks will auto-detect)
 
 3. **Environment Variables**:
    Add these environment variables in Coolify:
@@ -122,8 +121,12 @@ The following indexes are automatically created for optimal performance:
    CORS_ORIGIN=https://your-frontend-domain.com
    RATE_LIMIT_WINDOW_MS=900000
    RATE_LIMIT_MAX_REQUESTS=100
-   REFRESH_INTERVAL_MINUTES=30
    ```
+
+   Notes:
+
+   - Refresh interval is fixed at 5 minutes in code for FEATURED tokens.
+   - If your frontend is on Vercel, set `CORS_ORIGIN` to your Vercel URL.
 
 4. **Deploy**:
    - Click "Deploy"
@@ -144,18 +147,18 @@ The following indexes are automatically created for optimal performance:
 
 ## Frontend Integration
 
-Update your frontend to use the new API endpoints:
+Update your frontend to use the new API endpoints (FEATURED only):
 
 ```javascript
-// Replace your current Zora API calls with:
+// Replace your current Zora API calls with your backend endpoint:
 const response = await fetch(
-  "https://your-api-domain.com/api/tokens/FEATURED?page=1&limit=20"
+  "https://your-api-domain.com/api/tokens/featured?page=1&limit=20"
 );
 const data = await response.json();
 
 // Search tokens
 const searchResponse = await fetch(
-  "https://your-api-domain.com/api/tokens/search?q=base&listType=FEATURED"
+  "https://your-api-domain.com/api/tokens/search?q=base"
 );
 const searchData = await searchResponse.json();
 
